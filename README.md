@@ -7,8 +7,8 @@ Easy to use CI/CD driven, convention based application harness that facilitates 
 The Stage/Stages term refrenced throught this repo is `test`,`staging`,`prod`.  All the CI/CD pipelines create these 3 stages.
 
 1.  Create a Github user (acct will just be used to read repos for CI/CD), give it read auth to your github repo.  Create a personal access token for this user at https://github.com/settings/tokens.  This token will be used by the CI/CD to pull code.
-1.  Pick a example from the [examples](./examples) directory.  Copy the contents of the example directory you choose, into your project.
-1.  View the `README.md` in the example project to reate your "resources" (s3 buckets, dynamo tables etc) CloudFormation stack, as well as how to create your CI/CD CloudFormation Stack
+1.  Create a **versioned** s3 bucket to store CloudFormation nested stack templates.  See [nested-stacks](./nested-stacks) for instructions.
+1.  Pick from the [examples](https://github.com/rynop/aws-blueprint#examples) below, and view the setup instructions in the `README.md`.  It will walk you through creating your "resources" CloudFormation stack (API Gateway, s3 buckets, dynamo tables etc), as well as how to create your CI/CD CloudFormation Stack.
 
 ## Examples
 
