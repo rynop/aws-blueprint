@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: CloudFront > APIG 
+  SSL only, custom DomainName, custom header to verify requests come through CloudFront, Edge Gzip, Caching OPTIONS
+
+Parameters:
+
+  Stage:
+    Description: Deployment stage
+    Type: String
+
+  ApiGatewayId:
+    Description: API gateway ID (NOT the deployment ID)
+    Type: String
+
+  AcmCertificateArn:
+    Description: The ARN of a certificate from AWS Certificate Manager (ACM)
+    Type: String
+
+  Route53HostedZoneId:
+    Description: Hosted Zone ID where domain name for CloudFront will be made
+    Type: String
+    Default: Z2FDTNDATAQYW2
+
+  CloudFrontCname:
+    Description: Custom domain name to use (foo.yourdomain.com).  Will prefix this with [Stage]--
+    Type: String
+    Default: blah.yourdomain.com
+
+  VerifyFromCfHeaderVal:
+    Description: A custom header X-From-CDN with val below be passed to your orgin, to verify request came 
+    Type: String
+
+Resources:  
+#### Cloudfront and DNS stuff
+  CloudFront:  
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        IPV6Enabled: true
+        HttpVersion: http2
+        Comment: !Join [ '', [!Ref 'AWS::StackName', ' Cloud Front']]
+        Aliases: 
+          - !Sub ${Stage}--${CloudFrontCname}
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateArn
+          SslSupportMethod: sni-only
+        Origins:
+        - Id: APIGOrigin
+          DomainName: !Sub ${ApiGatewayId}.execute-api.${AWS::Region}.amazonaws.com
+          OriginPath: !Sub /${Stage}
+          CustomOriginConfig:
+            HTTPSPort: 443
+            OriginProtocolPolicy: https-only
+          OriginCustomHeaders:
+            - HeaderName: 'X-From-CDN'
+              HeaderValue: !Ref VerifyFromCfHeaderVal
+        DefaultCacheBehavior:
+          AllowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+          CachedMethods: ["GET", "HEAD", "OPTIONS"]
+          ForwardedValues:
+            Headers:
+            - Access-Control-Request-Headers
+            - Access-Control-Request-Method
+            - Origin
+            - Authorization
+            # - Host APIG needs to use SNI
+            QueryString: true
+          TargetOriginId: APIGOrigin
+          ViewerProtocolPolicy: https-only
+          Compress: true
+          DefaultTTL: 0
+        CustomErrorResponses:
+        - ErrorCachingMinTTL: 0
+          ErrorCode: 400
+        - ErrorCachingMinTTL: 1
+          ErrorCode: 403
+        - ErrorCachingMinTTL: 5
+          ErrorCode: 500
+  DNSARecord:    
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: !Ref 'AWS::StackName'
+      Name: !Sub ${Stage}--${CloudFrontCname}        
+      Type: A
+      HostedZoneName: !Join ['.', [ !Select [1, !Split ['.', !Ref CloudFrontCname]], !Select [2, !Split ['.', !Ref CloudFrontCname]], '']]
+      AliasTarget:
+        HostedZoneId: !Ref Route53HostedZoneId
+        DNSName: !GetAtt CloudFront.DomainName
+  DNSAAAARecord:    
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Comment: !Ref 'AWS::StackName'
+      Name: !Sub ${Stage}--${CloudFrontCname}
+      Type: AAAA
+      HostedZoneName: !Join ['.', [ !Select [1, !Split ['.', !Ref CloudFrontCname]], !Select [2, !Split ['.', !Ref CloudFrontCname]], '']]
+      AliasTarget:
+        HostedZoneId: !Ref Route53HostedZoneId
+        DNSName: !GetAtt CloudFront.DomainName
+
+####END Cloudfront and DNS stuff  
+
+Outputs:
+  Version:
+    Description: CF-APIG-Single-Lambda template version
+    Value: 1.0.0
+
+  CloudFront:
+    Description: CloudFront ID
+    Value: !Ref CloudFront
+  CNAME:
+    Description: Custom domain for Cloudfront
+    Value: !Ref DNSARecord
+

@@ -1,0 +1,517 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description:
+  CI/CD CodePipeline for a single lambda. Naming conveention, [repo]--[branch]--[eyecatcher]--cicd  
+  Lint > Build & Testcases > Deploy to Test stage > Approve > Deploy Staging > Approve > Deploy Prod
+  Will create lambda with test,staging,prod aliases - all versioned with their own enviornment vars
+  
+
+Parameters:    
+  ApprovalNotificationArn:
+    Description: ARN to receive notifications for approvals
+    Type: String
+    Default: arn:aws:sns:us-east-1:1111111:code-promotion-approvals
+  GithubOrg:
+    Description: The GitHub organization
+    Type: String    
+  GithubOAuthToken:
+    Description: The GitHub Personal Access Token so CodePipeline can get the code. https://github.com/settings/tokens.  Needs repo scope.
+    Type: String
+    NoEcho: true
+
+  LambdaName:
+    Description: Lambda name (does not have to exist yet).  The full lambda name will be [Repo]--[Branch]--[LambdaName].  Should match LambdaName in your -r resources stack.
+    Type: String
+  LambdaRuntime:
+    Description: Lambda runtime
+    Type: String  
+    Default: "go1.x"  
+    AllowedValues: 
+      - nodejs8.10
+      - java8
+      - python2.7
+      - python3.6
+      - dotnetcore1.0
+      - dotnetcore2.0
+      - go1.x
+  LambdaDesc:     
+    Description: Lambda desc
+    Type: String      
+  HandlerPath:
+    Description: The path to the entrypoint of your application, relative to project root. Defines lambda handler and compile/package point. Node ex, src/lambda/handlers/test.handler Go ex, cmd/appName/main
+    Type: String
+    Default: cmd/appName/main
+  S3BucketForLambdaPackageZips:
+    Description: Bucket to store lambda code zips. S3 key will be [repo]--[branch]--[eyecatcher]--cicd/lambdazips
+    Type: String
+    Default: "deploy.yourorg.com"
+
+  BuildTimeout:
+    Description: Timeout in minutes for the build
+    Type: Number
+    Default: 5
+  CodeBuildImage:
+    Description: Image for the CodeBuild container that runs linting, test cases, build. Make sure the version matches your Lambda runtime. Ex, node:8.10
+    Type: String
+    Default: golang:1.10.2
+  TestBuildPackageSpecPath:
+    Description: Path to the buildspec used to test, build, package your lambda. relative to your codebase
+    Type: String
+    Default: aws/codebuild/nodejs-test-package.yaml  
+
+  PublishTimeout:
+    Description: Timeout in minutes for deploying the lambda each stage
+    Type: Number
+    Default: 5
+  LambdaPublishBuildSpecPath:
+    Description: Path to the buildspec used set env vars, create version, and update alias. relative to your codebase
+    Type: String
+    Default: aws/codebuild/lambda-publish.yaml   
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Misc"
+        Parameters:
+          - ApprovalNotificationArn
+          - GithubOrg
+          - GithubOAuthToken
+      - Label:
+          default: "Lambda"
+        Parameters:
+          - LambdaName
+          - LambdaRuntime
+          - LambdaDesc
+          - HandlerPath
+      - Label:
+          default: "Build, Test, Deploy"
+        Parameters:
+          - S3BucketForLambdaPackageZips
+          - CodeBuildImage
+          - TestBuildPackageSpecPath
+          - BuildTimeout          
+      - Label:
+          default: "Publish"
+        Parameters:
+          - LambdaPublishBuildSpecPath
+          - PublishTimeout
+
+Resources:
+  ArtifactStoreBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+
+#### CodeBuild Stuff
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal:
+            Service: [codebuild.amazonaws.com]
+        Version: '2012-10-17'
+      Path: /
+      Policies:
+        - PolicyName: CodeBuild
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                - "logs:CreateLogGroup"
+                - "logs:CreateLogStream"
+                - "logs:PutLogEvents"
+                Effect: Allow
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*"
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*:*"
+              - Action:
+                - "s3:PutObject"
+                - "s3:GetObject"
+                - "s3:GetObjectVersion"
+                Effect: Allow
+                Resource:
+                  - "arn:aws:s3:::codepipeline-us-east-1-*"
+              - Action:
+                - 'iam:PassRole'
+                - 'ssm:DescribeParameters'
+                Effect: Allow
+                Resource: '*'
+              - Action:
+                - 's3:*'
+                Effect: Allow
+                Resource: 
+                  - !Sub 
+                    - ${bucket}*
+                    - { bucket: !GetAtt ArtifactStoreBucket.Arn }
+                  - !Sub 
+                    - arn:aws:s3:::${bucket}*
+                    - { bucket: !Ref S3BucketForLambdaPackageZips }
+              - Action: #see https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-access.html
+                - 'ssm:GetParameter*'
+                Effect: Allow
+                Resource: 
+                  - !Sub "arn:aws:ssm:*:${AWS::AccountId}:parameter/*"              
+              - Action: #see https://docs.aws.amazon.com/kms/latest/developerguide/iam-policies.html
+                - 'kms:Decrypt'
+                Effect: Allow
+                Resource: 
+                  - !Sub "arn:aws:kms:*:${AWS::AccountId}:key/*"
+              - Action:
+                - lambda:Add*
+                - lambda:Create*
+                - lambda:Get*
+                - lambda:List*
+                - lambda:Update*
+                Effect: Allow
+                Resource:
+                  - !Sub
+                    - arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Repo}--${Branch}--${LambdaName}*
+                    - { LambdaName: !Ref LambdaName, Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
+
+  TestBuildPackageProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub
+        - ${StackName}-BuildTestPackageLambda
+        - { StackName: !Ref 'AWS::StackName' }
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_LARGE
+        PrivilegedMode: true
+        Type: LINUX_CONTAINER
+        Image: !Ref CodeBuildImage
+        EnvironmentVariables:
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId
+          - Name: HANDLER_PATH
+            Value: !Ref HandlerPath    
+          - Name: GITHUB_ORG
+            Value: !Ref GithubOrg                  
+          - Name: REPO
+            Value: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: BRANCH
+            Value: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: EYECATCHER
+            Value: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: LAMBDA_NAME
+            Value: !Ref LambdaName            
+          - Name: FULL_LAMBDA_NAME
+            Value: !Sub
+              - ${Repo}--${Branch}--${LambdaName}
+              - { LambdaName: !Ref LambdaName, Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
+          - Name: S3_DIR_PATH_FOR_ZIPS
+            Value: !Sub
+              - s3://${S3Bucket}/${AWS::StackName}/lambdazips
+              - { S3Bucket: !Ref S3BucketForLambdaPackageZips }
+      ServiceRole: !Ref CodeBuildRole
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: !Ref TestBuildPackageSpecPath
+      TimeoutInMinutes: !Ref BuildTimeout
+
+  LamPubProjTest:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub
+        - ${StackName}-LambdaPublish-Test
+        - { StackName: !Ref 'AWS::StackName' }       
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_LARGE
+        PrivilegedMode: true
+        Type: LINUX_CONTAINER
+        Image: 'aws/codebuild/ubuntu-base:14.04'
+        EnvironmentVariables:
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId          
+          - Name: LAMBDA_RUNTIME
+            Value: !Ref LambdaRuntime  
+          - Name: LAMBDA_DESC
+            Value: !Ref LambdaRuntime      
+          - Name: HANDLER_PATH
+            Value: !Ref HandlerPath     
+          - Name: STAGE
+            Value: test
+          - Name: REPO
+            Value: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: BRANCH
+            Value: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: EYECATCHER
+            Value: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: LAMBDA_NAME
+            Value: !Ref LambdaName 
+          - Name: FULL_LAMBDA_NAME
+            Value: !Sub
+              - ${Repo}--${Branch}--${LambdaName}
+              - { LambdaName: !Ref LambdaName, Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
+          - Name: S3_BUCKET_CONTAINING_PACKAGES
+            Value: !Ref S3BucketForLambdaPackageZips
+          - Name: S3_PATH_TO_PACKAGES
+            Value: !Sub ${AWS::StackName}/lambdazips
+      ServiceRole: !Ref CodeBuildRole
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: !Ref LambdaPublishBuildSpecPath
+      TimeoutInMinutes: !Ref PublishTimeout
+
+  LamPubProjStaging:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub
+        - ${StackName}-LambdaPublish-Staging
+        - { StackName: !Ref 'AWS::StackName' }       
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_LARGE
+        PrivilegedMode: true
+        Type: LINUX_CONTAINER
+        Image: 'aws/codebuild/ubuntu-base:14.04'
+        EnvironmentVariables:
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId
+          - Name: LAMBDA_RUNTIME
+            Value: !Ref LambdaRuntime  
+          - Name: LAMBDA_DESC
+            Value: !Ref LambdaRuntime      
+          - Name: HANDLER_PATH
+            Value: !Ref HandlerPath              
+          - Name: STAGE
+            Value: staging
+          - Name: REPO
+            Value: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: BRANCH
+            Value: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: EYECATCHER
+            Value: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: LAMBDA_NAME
+            Value: !Ref LambdaName 
+          - Name: FULL_LAMBDA_NAME
+            Value: !Sub
+              - ${Repo}--${Branch}--${LambdaName}
+              - { LambdaName: !Ref LambdaName, Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
+          - Name: S3_BUCKET_CONTAINING_PACKAGES
+            Value: !Ref S3BucketForLambdaPackageZips
+          - Name: S3_PATH_TO_PACKAGES
+            Value: !Sub ${AWS::StackName}/lambdazips
+      ServiceRole: !Ref CodeBuildRole
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: !Ref LambdaPublishBuildSpecPath
+      TimeoutInMinutes: !Ref PublishTimeout
+
+  LamPubProjProd:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub
+        - ${StackName}-LambdaPublish-Prod
+        - { StackName: !Ref 'AWS::StackName' }       
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_LARGE
+        PrivilegedMode: true
+        Type: LINUX_CONTAINER
+        Image: 'aws/codebuild/ubuntu-base:14.04'
+        EnvironmentVariables:
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId   
+          - Name: LAMBDA_RUNTIME
+            Value: !Ref LambdaRuntime  
+          - Name: LAMBDA_DESC
+            Value: !Ref LambdaRuntime      
+          - Name: HANDLER_PATH
+            Value: !Ref HandlerPath                   
+          - Name: STAGE
+            Value: prod
+          - Name: REPO
+            Value: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: BRANCH
+            Value: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: EYECATCHER
+            Value: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: LAMBDA_NAME
+            Value: !Ref LambdaName 
+          - Name: FULL_LAMBDA_NAME
+            Value: !Sub
+              - ${Repo}--${Branch}--${LambdaName}
+              - { LambdaName: !Ref LambdaName, Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
+          - Name: S3_BUCKET_CONTAINING_PACKAGES
+            Value: !Ref S3BucketForLambdaPackageZips
+          - Name: S3_PATH_TO_PACKAGES
+            Value: !Sub ${AWS::StackName}/lambdazips
+      ServiceRole: !Ref CodeBuildRole
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: !Ref LambdaPublishBuildSpecPath
+      TimeoutInMinutes: !Ref PublishTimeout
+#### END CodeBuild Stuff
+
+
+#### CodePipeline Stuff
+  PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal:
+            Service: [codepipeline.amazonaws.com]
+        Version: '2012-10-17'
+      Path: /
+      Policies:
+        - PolicyName: CodePipelineAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                - 's3:*'
+                Effect: Allow
+                Resource: 
+                  - !Sub 
+                    - ${bucket}*
+                    - { bucket: !GetAtt ArtifactStoreBucket.Arn }
+                  - !Sub 
+                    - arn:aws:s3:::${bucket}*
+                    - { bucket: !Ref S3BucketForLambdaPackageZips }            
+              - Action:
+                - 'cloudformation:CreateStack'
+                - 'cloudformation:DescribeStacks'
+                - 'cloudformation:DeleteStack'
+                - 'cloudformation:UpdateStack'
+                - 'cloudformation:CreateChangeSet'
+                - 'cloudformation:ExecuteChangeSet'
+                - 'cloudformation:DeleteChangeSet'
+                - 'cloudformation:DescribeChangeSet'
+                - 'cloudformation:SetStackPolicy'
+                - 'iam:PassRole'
+                - 'sns:Publish'
+                - 'codebuild:BatchGetBuilds'
+                - 'codebuild:StartBuild'
+                Effect: Allow
+                Resource: '*'
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Location: !Ref 'ArtifactStoreBucket'
+        Type: S3
+      DisableInboundStageTransitions: []
+      Name: !Ref AWS::StackName
+      RoleArn: !GetAtt PipelineRole.Arn
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: '1'
+              OutputArtifacts:
+                - Name: MyAppCode
+              Configuration:
+                Owner: !Ref GithubOrg
+                Repo: !Select [ 0, !Split [ '--', !Ref 'AWS::StackName' ] ]
+                PollForSourceChanges: true
+                Branch: !Select [ 1, !Split [ '--', !Ref 'AWS::StackName' ] ]
+                OAuthToken: !Ref GithubOAuthToken
+              RunOrder: 1        
+        - Name: TestBuildPackage
+          Actions:
+            - Name: LintTestBuildPackage
+              InputArtifacts:
+                - Name: MyAppCode
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              OutputArtifacts:
+                - Name: MyAppBuild
+              Configuration:
+                ProjectName: !Ref TestBuildPackageProject
+              RunOrder: 1
+        - Name: PublishTest
+          Actions:
+            - Name: SetENVAndPublish
+              InputArtifacts:   
+                - Name: MyAppCode
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref LamPubProjTest
+              RunOrder: 1       
+            - Name: ApproveTest
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              Configuration:
+                NotificationArn: !Ref ApprovalNotificationArn
+              RunOrder: 2          
+        - Name: PublishStaging
+          Actions:
+            - Name: SetENVAndPublish
+              InputArtifacts:     
+                - Name: MyAppCode           
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref LamPubProjStaging
+              RunOrder: 1       
+            - Name: ApproveStaging
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              Configuration:
+                NotificationArn: !Ref ApprovalNotificationArn
+              RunOrder: 2  
+        - Name: PublishProd
+          Actions:
+            - Name: SetENVAndPublish
+              InputArtifacts:
+                - Name: MyAppCode
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref LamPubProjProd
+              RunOrder: 1  
+#### END CodePipeline Stuff
+
+Outputs:
+
+  CodeBuildRole:
+    Description: CodeBuildRole
+    Value: !Ref CodeBuildRole
+
+  S3ArtifactStore:
+    Description: Artifact Store Bucket
+    Value: !Ref ArtifactStoreBucket
+
+  FullLambdaName:
+    Description: Full lambda name
+    Value: !Sub
+      - ${Repo}--${Branch}--${LambdaName}
+      - { LambdaName: !Ref LambdaName, Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
