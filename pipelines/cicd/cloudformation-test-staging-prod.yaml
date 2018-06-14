@@ -31,7 +31,7 @@ Parameters:
     Description: CloudFormation paramater overrides. build.json is exported from your buildspec.yaml
     Type: String
   ApprovalNotificationArn:
-    Description: ARN to receive notifications for approvals
+    Description: SNS ARN to receive notifications for approvals
     Type: String
     Default: arn:aws:sns:us-east-1:1111111:code-promotion-approvals
   GithubOrg:
