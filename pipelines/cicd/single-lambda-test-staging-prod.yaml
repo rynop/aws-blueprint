@@ -53,7 +53,7 @@ Parameters:
   CodeBuildImage:
     Description: Image for the CodeBuild container that runs linting, test cases, build. Make sure the version matches your Lambda runtime. Ex, node:8.10
     Type: String
-    Default: golang:1.10.2
+    Default: golang:1.10.3
   TestBuildPackageSpecPath:
     Description: Path to the buildspec used to test, build, package your lambda. relative to your codebase
     Type: String
