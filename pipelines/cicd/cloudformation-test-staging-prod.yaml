@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: >
-  Continous Delievery: Naming convention:<app>--<branch>--<service> This template
+  Continous Delievery: Naming convention:[repo]--[branch]--[service]--cicd This template
   builds an AWS CodePipeline pipeline that implements a continuous delivery release
   process for AWS CloudFormation stacks. Push change to github and it will build
   the code, then release it to test.  Once approvded in test, will release in
@@ -280,7 +280,9 @@ Resources:
                 ActionMode: CHANGE_SET_REPLACE
                 RoleArn: !GetAtt CFNRole.Arn
                 Capabilities: CAPABILITY_IAM
-                StackName: !Join [ '--', [ 'test', !Ref 'AWS::StackName' ] ]
+                StackName: !Sub
+                - test--${Repo}--${Branch}-${Service}--fargagte
+                - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
                 ChangeSetName: ChangeSet
                 TemplatePath: !Sub "MyApp::${RelCloudFormationTemplatePath}"
                 TemplateConfiguration: !Sub "MyApp::${TestCloudFormationTemplateParameters}"
@@ -295,7 +297,9 @@ Resources:
                 ActionMode: CHANGE_SET_EXECUTE
                 ChangeSetName: ChangeSet
                 RoleArn: !GetAtt CFNRole.Arn
-                StackName: !Join [ '--', [ 'test', !Ref 'AWS::StackName' ] ]
+                StackName: !Sub
+                - test--${Repo}--${Branch}-${Service}--fargagte
+                - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
               RunOrder: 2
             - Name: ApproveTest
               ActionTypeId:
@@ -322,7 +326,9 @@ Resources:
                 ActionMode: CHANGE_SET_REPLACE
                 RoleArn: !GetAtt CFNRole.Arn
                 Capabilities: CAPABILITY_IAM
-                StackName: !Join [ '--', [ 'staging', !Ref 'AWS::StackName' ] ]
+                StackName: !Sub
+                - staging--${Repo}--${Branch}-${Service}--fargagte
+                - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
                 ChangeSetName: ChangeSet
                 TemplatePath: !Sub "MyApp::${RelCloudFormationTemplatePath}"
                 TemplateConfiguration: !Sub "MyApp::${StagingCloudFormationTemplateParameters}"
@@ -337,7 +343,9 @@ Resources:
                 ActionMode: CHANGE_SET_EXECUTE
                 ChangeSetName: ChangeSet
                 RoleArn: !GetAtt CFNRole.Arn
-                StackName: !Join [ '--', [ 'staging', !Ref 'AWS::StackName' ] ]
+                StackName: !Sub
+                - staging--${Repo}--${Branch}-${Service}--fargagte
+                - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
               RunOrder: 2
             - Name: ApproveStaging
               ActionTypeId:
@@ -363,7 +371,9 @@ Resources:
                 ActionMode: CHANGE_SET_REPLACE
                 RoleArn: !GetAtt CFNRole.Arn
                 Capabilities: CAPABILITY_IAM
-                StackName: !Join [ '--', [ 'prod', !Ref 'AWS::StackName' ] ]
+                StackName: !Sub
+                - prod--${Repo}--${Branch}-${Service}--fargagte
+                - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
                 ChangeSetName: ChangeSet
                 TemplatePath: !Sub "MyApp::${RelCloudFormationTemplatePath}"
                 TemplateConfiguration: !Sub "MyApp::${ProdCloudFormationTemplateParameters}"
@@ -389,7 +399,9 @@ Resources:
                 ActionMode: CHANGE_SET_EXECUTE
                 ChangeSetName: ChangeSet
                 RoleArn: !GetAtt CFNRole.Arn
-                StackName: !Join [ '--', [ 'prod', !Ref 'AWS::StackName' ] ]
+                StackName: !Sub
+                - prod--${Repo}--${Branch}-${Service}--fargagte
+                - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
               RunOrder: 3
         - Name: DeleteStagingAndTest
           Actions:
