@@ -8,12 +8,26 @@ The Stage/Stages term refrenced throught this repo is `test`,`staging`,`prod`.  
 
 1.  Create a Github user (acct will just be used to read repos for CI/CD), give it read auth to your github repo.  Create a personal access token for this user at https://github.com/settings/tokens.  This token will be used by the CI/CD to pull code.
 1.  Create a **versioned** s3 bucket to store CloudFormation nested stack templates.  See [nested-stacks](./nested-stacks) for instructions.
+1.  Optional: if you are running MacOS, install GNU tools (below) to use the quick setup scripts in the example projects.
 1.  Pick from the [examples](https://github.com/rynop/aws-blueprint#examples) below, and view the setup instructions in the `README.md`.  It will walk you through creating your "resources" CloudFormation stack (API Gateway, s3 buckets, dynamo tables etc), as well as how to create your CI/CD CloudFormation Stack.
 
 ## Examples
 
 *  [abp-single-lambda-api](https://github.com/rynop/abp-single-lambda-api): API backed by a single Lambda
 *  [abp-fargate](https://github.com/rynop/abp-fargate): Fargate based app (with or without ELB)
+
+## GNU tools
+
+```
+brew install coreutils
+brew install gnu-sed --with-default-names
+
+#add to your path: fish example (~/.config/fish/config.fish)
+set -x GNU_BIN_PATH /usr/local/opt/coreutils/libexec/gnubin
+set -x GNU_SED_PATH /usr/local/Cellar/gnu-sed/4.5/bin
+
+set -x PATH $GOPATH $PIP_BIN_PATH $GNU_BIN_PATH $GNU_SED_PATH $PATH
+```
 
 ## TODO
 
