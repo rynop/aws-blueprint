@@ -13,9 +13,6 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-#built files
-bin/
-
 #Ignores for golang examples. You should check this into real projects
 _tools  
 vendor
