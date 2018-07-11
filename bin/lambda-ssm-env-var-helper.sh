@@ -23,10 +23,25 @@ while [[ -z "$lambdaName" ]]; do
     read -p "Lambda Name (LambdaName param to your CloudFormation, no -- in name): " lambdaName
 done
 
+echo "--Bash script start--"
+echo "\
+#!/usr/bin/env bash
+
+#DO NOT CHECK IN MODIFICATIONS TO THIS FILE
+
+#Generated from https://github.com/rynop/aws-blueprint/blob/master/bin/lambda-ssm-env-var-helper.sh
+
+STAGE=${stage}
+BRANCH=${gitBranch}
+LAMBDA_NAME=${lambdaName}
+"
+
 IFS=',' read -ra ADDR <<< "$VARS"
 for i in "${ADDR[@]}"; do
-    echo "aws ssm put-parameter --name '/${stage}/${githubRepoName}/${gitBranch}/${lambdaName}/lambdaEnvs/${i}' --type 'SecureString' --value '<YOUR VALUE HERE>'"
+    echo "aws ssm put-parameter --name "/\$STAGE/${githubRepoName}/\$BRANCH/\$LAMBDA_NAME/lambdaEnvs/${i}" --type 'SecureString' --value '<YOUR VALUE HERE>'"
+#    echo "aws ssm put-parameter --name \"/\${stage}/${githubRepoName}/${gitBranch}/${lambdaName}/lambdaEnvs/${i}' --type 'SecureString' --value '<YOUR VALUE HERE>'"
 done
+echo "--Bash script end--"
 
 printf '\nRemember to also run:\n\n'
 echo "aws ssm put-parameter --name '/${stage}/${githubRepoName}/${gitBranch}/${lambdaName}/lambdaEnvs/lambdaTimeout' --type 'String' --value '<YOUR VALUE HERE>'"
