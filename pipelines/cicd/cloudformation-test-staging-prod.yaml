@@ -300,8 +300,10 @@ Resources:
                 StackName: !Sub
                 - test--${Repo}--${Branch}-${Service}--fargagte
                 - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
-              RunOrder: 2
-            - Name: ApproveTest
+              RunOrder: 2  
+        - Name: PromoteTest
+          Actions:                    
+            - Name: Approve
               ActionTypeId:
                 Category: Approval
                 Owner: AWS
@@ -309,7 +311,7 @@ Resources:
                 Version: '1'
               Configuration:
                 NotificationArn: !Ref ApprovalNotificationArn
-              RunOrder: 3                   
+              RunOrder: 1                                 
         - Name: Staging
           Actions:
             - Name: StagingStack

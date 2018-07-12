@@ -453,8 +453,10 @@ Resources:
                 Version: '1'
               Configuration:
                 ProjectName: !Ref LamPubProjTest
-              RunOrder: 1       
-            - Name: ApproveTest
+              RunOrder: 1 
+        - Name: PromoteTest
+          Actions:                    
+            - Name: Approve
               ActionTypeId:
                 Category: Approval
                 Owner: AWS
@@ -462,7 +464,7 @@ Resources:
                 Version: '1'
               Configuration:
                 NotificationArn: !Ref ApprovalNotificationArn
-              RunOrder: 2          
+              RunOrder: 1          
         - Name: PublishStaging
           Actions:
             - Name: SetENVAndPublish
