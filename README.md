@@ -29,7 +29,3 @@ set -x GNU_SED_PATH /usr/local/Cellar/gnu-sed/4.5/bin
 
 set -x PATH $GOPATH $PIP_BIN_PATH $GNU_BIN_PATH $GNU_SED_PATH $PATH
 ```
-
-## TODO
-
-*  single-lambda no APIG
