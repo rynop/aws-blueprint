@@ -189,7 +189,7 @@ Resources:
       - Key: Name
         Value: !Ref AWS::StackName
       - Key: Stage
-        Value: !Ref stage        
+        Value: !Ref Stage        
 
   AuroraCluster:
     Type: AWS::RDS::DBCluster
