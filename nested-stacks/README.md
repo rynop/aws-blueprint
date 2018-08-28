@@ -1,5 +1,6 @@
 Any time these files are changed, they should be synced to `s3://<your cloudformation bucket>/nested-stacks` versioned S3 bucket.
 
+1.  Clone this repo
 1.  From the `nested-stacks` dir run: `aws s3 sync . s3://us-east-1--aws-blueprint.yourdomain.com/nested-stacks`
 
 ### Note
