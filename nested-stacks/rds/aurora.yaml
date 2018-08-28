@@ -7,21 +7,26 @@ Description: Aurora
 
 Parameters:
 
+  Stage:
+    Type: String
+    Description: the stage
+
   DatabaseSecurityGroupId:
     Type: String
     Description: Database VPC security group ID
 
-  DatabaseSubnet1Id:
-    Type: String
-    Description: Database subnet1 ID
+  DatabaseSubnets:
+    Description: Choose which subnets Aurora should be in
+    Type: List<AWS::EC2::Subnet::Id>
 
-  DatabaseSubnet2Id:
+  DatabaseName:
+    Default: StartupDB
     Type: String
-    Description: Database subnet2 ID
-
-  DatabaseSubnet3Id:
-    Type: String
-    Description: Database subnet3 ID
+    Description: Database name
+    MinLength: 1
+    MaxLength: 30
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: Name must begin with a letter and contain only alphanumeric characters
 
   DatabaseUser:
     Default: startupadmin
@@ -40,15 +45,6 @@ Parameters:
     MaxLength: 41
     AllowedPattern: "[a-zA-Z0-9]*"
     ConstraintDescription: Password must contain only alphanumeric characters
-
-  DatabaseName:
-    Default: StartupDB
-    Type: String
-    Description: Database name
-    MinLength: 1
-    MaxLength: 30
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    ConstraintDescription: Name must begin with a letter and contain only alphanumeric characters
 
   DatabaseEngine:
     Default: aurora
@@ -83,15 +79,6 @@ Parameters:
       - db.r4.4xlarge
       - db.r4.8xlarge
       - db.r4.16xlarge
-
-  EnvironmentName:
-    Description: Environment name - dev or prod
-    Type: String
-    Default: dev
-    AllowedValues:
-      - dev
-      - prod
-    ConstraintDescription: Specify either dev or prod
 
   # The database alarm configuration, currently not supported for Aurora PostgreSQL
   DatabaseAlarmMaxCpuPercent:
@@ -156,8 +143,6 @@ Parameters:
 
 Conditions:
 
-  IsProd: !Equals [ !Ref EnvironmentName, prod ]
-
   IsAuroraMySQL: !Equals [ !Ref DatabaseEngine, aurora ]
 
   AlarmsEnabled: !And
@@ -203,6 +188,8 @@ Resources:
       Tags:
       - Key: Name
         Value: !Ref AWS::StackName
+      - Key: Stage
+        Value: !Ref stage        
 
   AuroraCluster:
     Type: AWS::RDS::DBCluster
@@ -215,6 +202,9 @@ Resources:
       DatabaseName: !Ref DatabaseName
       DBClusterParameterGroupName: !If [ IsAuroraMySQL,  default.aurora5.6, default.aurora-postgresql9.6 ]
       Port: !If [ IsAuroraMySQL,  3306, 5432 ]
+      Tags: 
+        - Key: Stage
+          Value: !Ref stage
       VpcSecurityGroupIds:
         - Fn::ImportValue: !Ref DatabaseSecurityGroupId
     DependsOn: DatabaseSubnetGroup
@@ -234,11 +224,12 @@ Resources:
       Tags:
       - Key: Name
         Value: !Ref AWS::StackName
+      - Key: Stage
+        Value: !Ref stage        
     DependsOn: AuroraCluster
 
   AuroraInstance1:
     Type: AWS::RDS::DBInstance
-    Condition: IsProd
     Properties:
       Engine: !Ref DatabaseEngine
       DBClusterIdentifier: !Ref AuroraCluster
@@ -252,6 +243,8 @@ Resources:
       Tags:
       - Key: Name
         Value: !Ref AWS::StackName
+      - Key: Stage
+        Value: !Ref stage
     DependsOn: AuroraCluster
 
   DatabaseCpuAlarm:
