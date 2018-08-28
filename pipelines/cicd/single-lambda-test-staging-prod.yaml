@@ -20,7 +20,7 @@ Parameters:
     NoEcho: true
 
   LambdaName:
-    Description: Lambda name (does not have to exist yet).  The full lambda name will be [Repo]--[Branch]--[LambdaName].  Should match LambdaName in your -r resources stack.
+    Description: Lambda name (does not have to exist yet).  The full lambda name will be [Repo]--[Branch]--[LambdaName].  Should match FullLambdaName in your -r resources stack.
     Type: String
   LambdaRuntime:
     Description: Lambda runtime
