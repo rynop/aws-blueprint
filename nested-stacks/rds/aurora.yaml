@@ -204,7 +204,7 @@ Resources:
       Port: !If [ IsAuroraMySQL,  3306, 5432 ]
       Tags: 
         - Key: Stage
-          Value: !Ref stage
+          Value: !Ref Stage
       VpcSecurityGroupIds:
         - Fn::ImportValue: !Ref DatabaseSecurityGroupId
     DependsOn: DatabaseSubnetGroup
@@ -225,7 +225,7 @@ Resources:
       - Key: Name
         Value: !Ref AWS::StackName
       - Key: Stage
-        Value: !Ref stage        
+        Value: !Ref Stage        
     DependsOn: AuroraCluster
 
   AuroraInstance1:
@@ -244,7 +244,7 @@ Resources:
       - Key: Name
         Value: !Ref AWS::StackName
       - Key: Stage
-        Value: !Ref stage
+        Value: !Ref Stage
     DependsOn: AuroraCluster
 
   DatabaseCpuAlarm:
