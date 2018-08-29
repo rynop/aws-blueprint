@@ -19,10 +19,6 @@ while [[ -z "$gitBranch" ]]; do
     read -p "Git branch (Ex: master): " gitBranch
 done
 
-while [[ -z "$appName" ]]; do
-    read -p "App Name (part before / in ECS image repo): " appName
-done
-
 echo ""
 echo "--Bash script start--"
 echo "\
@@ -34,15 +30,14 @@ echo "\
 
 STAGE=${stage}
 BRANCH=${gitBranch}
-APP_NAME=${appName}
 "
 
 IFS=',' read -ra ADDR <<< "$VARS"
 for i in "${ADDR[@]}"; do
-    echo "aws ssm put-parameter --name \"/\$STAGE/${githubRepoName}/\$BRANCH/\$APP_NAME/ecsEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
+    echo "aws ssm put-parameter --name \"/\$STAGE/${githubRepoName}/\$BRANCH/ecsEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
 done
 
 echo "--Bash script end--"
 
 echo ""
-echo "Make sure aws/cloudformation/parameters/${stage}--ecs-codepipeline-parameters.json has SsmEnvPrefix set to /${stage}/${githubRepoName}/${gitBranch}/${appName}/ecsEnvs/"
+echo "Make sure aws/cloudformation/parameters/${stage}--ecs-codepipeline-parameters.json has SsmEnvPrefix set to /${stage}/${githubRepoName}/${gitBranch}/ecsEnvs/"
