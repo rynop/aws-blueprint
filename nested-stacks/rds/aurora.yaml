@@ -181,10 +181,7 @@ Resources:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
       DBSubnetGroupDescription: Database subnet group
-      SubnetIds:
-      - !Ref DatabaseSubnet1Id
-      - !Ref DatabaseSubnet2Id
-      - !Ref DatabaseSubnet3Id
+      SubnetIds: !Ref DatabaseSubnets
       Tags:
       - Key: Name
         Value: !Ref AWS::StackName
