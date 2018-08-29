@@ -14,7 +14,7 @@ Parameters:
   CreateMultipleInstances:
     Default: false
     Type: String
-    Description: Create multiple instances for HA
+    Description: Create one replica instance for HA
     ConstraintDescription: Only true or false are allowed
     AllowedValues:
       - true
