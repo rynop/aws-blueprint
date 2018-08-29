@@ -27,7 +27,7 @@ echo "--Bash script start--"
 echo "\
 #!/usr/bin/env bash
 
-#DO NOT CHECK IN MODIFICATIONS TO THIS FILE
+#DO NOT CHECK IN this file with values defined. Imagine if you accidentally overwrote prod vaules with test ones..
 
 #Generated from https://github.com/rynop/aws-blueprint/blob/master/bin/lambda-ssm-env-var-helper.sh
 

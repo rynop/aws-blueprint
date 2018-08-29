@@ -11,6 +11,15 @@ Parameters:
     Type: String
     Description: the stage
 
+  CreateMultipleInstances:
+    Default: false
+    Type: String
+    Description: Create multiple instances for HA
+    ConstraintDescription: Only true or false are allowed
+    AllowedValues:
+      - true
+      - false
+
   DatabaseSecurityGroupId:
     Type: String
     Description: Database VPC security group ID
@@ -153,6 +162,7 @@ Conditions:
     - !Condition AlarmsEnabled
     - !Equals [ !Ref EnhancedMonitoring, true ]
 
+  ShouldCreateMultipleInstances: !Equals [ !Ref CreateMultipleInstances, true ]
 
 Resources:
 
@@ -227,6 +237,7 @@ Resources:
 
   AuroraInstance1:
     Type: AWS::RDS::DBInstance
+    Condition: ShouldCreateMultipleInstances
     Properties:
       Engine: !Ref DatabaseEngine
       DBClusterIdentifier: !Ref AuroraCluster
