@@ -11,7 +11,7 @@ Parameters:
     Type: String
     Description: the stage
 
-  CreateMultipleInstances:
+  CreateReplicaInstance:
     Default: false
     Type: String
     Description: Create one replica instance for HA
@@ -162,7 +162,7 @@ Conditions:
     - !Condition AlarmsEnabled
     - !Equals [ !Ref EnhancedMonitoring, true ]
 
-  ShouldCreateMultipleInstances: !Equals [ !Ref CreateMultipleInstances, true ]
+  ShouldCreateReplicaInstance: !Equals [ !Ref CreateReplicaInstance, true ]
 
 Resources:
 
@@ -237,7 +237,7 @@ Resources:
 
   AuroraInstance1:
     Type: AWS::RDS::DBInstance
-    Condition: ShouldCreateMultipleInstances
+    Condition: ShouldCreateReplicaInstance
     Properties:
       Engine: !Ref DatabaseEngine
       DBClusterIdentifier: !Ref AuroraCluster
