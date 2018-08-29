@@ -23,6 +23,7 @@ while [[ -z "$appName" ]]; do
     read -p "App Name (part before / in ECS image repo): " appName
 done
 
+echo ""
 echo "--Bash script start--"
 echo "\
 #!/usr/bin/env bash
@@ -42,3 +43,6 @@ for i in "${ADDR[@]}"; do
 done
 
 echo "--Bash script end--"
+
+echo ""
+echo "Make sure aws/cloudformation/parameters/${stage}--ecs-codepipeline-parameters.json has SsmEnvPrefix set to /${stage}/${githubRepoName}/${gitBranch}/${appName}/ecsEnvs/"
