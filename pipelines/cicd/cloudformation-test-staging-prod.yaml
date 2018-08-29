@@ -28,7 +28,7 @@ Parameters:
     Default: aws/cloudformation/parameters/prod--ecs-codepipeline-parameters.json
   BuildParameterOverrides:
     Default: '{"ContainerImage":{"Fn::GetParam":["MyAppBuild","build.json","CodeImage"]}}'
-    Description: CloudFormation paramater overrides. build.json is exported from your buildspec.yaml
+    Description: CloudFormation paramater overrides. build.json is exported from your codebuild/build-docker-image.yaml
     Type: String
   ApprovalNotificationArn:
     Description: SNS ARN to receive notifications for approvals
