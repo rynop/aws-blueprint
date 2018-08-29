@@ -203,7 +203,7 @@ Resources:
         - Key: Stage
           Value: !Ref Stage
       VpcSecurityGroupIds:
-        - Fn::ImportValue: !Ref DatabaseSecurityGroupId
+        - !Ref DatabaseSecurityGroupId
     DependsOn: DatabaseSubnetGroup
 
   AuroraInstance0:
