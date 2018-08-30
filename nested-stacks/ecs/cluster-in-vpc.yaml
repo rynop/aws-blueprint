@@ -32,21 +32,18 @@ Parameters:
 
 Mappings:
 
-    # These are the latest ECS optimized AMIs as of Feb 21 2018:
-    #
-    #   amzn-ami-2017.09.i-amazon-ecs-optimized
-    #   ECS agent:    1.17.1
-    #   Docker:       17.09.1-ce
-    #   ecs-init:     1.17.1-1
-    #
     # You can find the latest available on this page of our documentation:
     # http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html
     # (note the AMI identifier is region specific)
-
     AWSRegionToAMI:
-        us-east-1:
-            AMI: ami-a7a242da
-        # visit doc above to add more regions
+        us-east-2: 
+            AMI: ami-028a9de0a7e353ed9
+        us-east-1: 
+            AMI: ami-00129b193dc81bc31
+        us-west-2: 
+            AMI: ami-00d4f478
+        us-west-1: 
+            AMI: ami-0d438d09af26c9583
 
 Resources:
 
