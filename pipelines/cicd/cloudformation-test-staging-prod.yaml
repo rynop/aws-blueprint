@@ -52,7 +52,7 @@ Parameters:
   CodeBuildImageTest:
     Description: Image for the CodeBuild container that runs linting and test cases.
     Type: String
-    Default: golang:1.10.3
+    Default: golang:1.11.1
   CodeBuildImage:
     Description: Image for the CodeBuild container that builds the final app docker image.  See https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html
     Type: String
@@ -62,9 +62,9 @@ Parameters:
     Type: String
     Default: cmd/appName/main.go
   RelDockerfilePath:
-    Description: Path to the Dockerfile to use for the build, relative to your CodeEntryPointFilePath
+    Description: Path to the Dockerfile to use for the build, relative to your repo root. Ex build/Dockerfile
     Type: String
-    Default: build/Dockerfile
+    Default: Dockerfile
   LintTestBuildSpecPath:
     Description: Path to the buildspec used to run testcases, relative to your codebase
     Type: String
