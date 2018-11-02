@@ -62,9 +62,9 @@ Parameters:
     Type: String
     Default: cmd/appName/main.go
   RelDockerfilePath:
-    Description: Path to the Dockerfile to use for the build, relative to your CodeEntryPointFilePath
+    Description: Path to the Dockerfile to use for the build, relative to your project root. ex build/Dockerfile. Defaults to project root.
     Type: String
-    Default: build/Dockerfile
+    Default: Dockerfile
   LintTestBuildSpecPath:
     Description: Path to the buildspec used to run testcases, relative to your codebase
     Type: String
