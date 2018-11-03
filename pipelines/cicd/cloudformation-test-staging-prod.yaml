@@ -279,7 +279,7 @@ Resources:
               Configuration:
                 ActionMode: CHANGE_SET_REPLACE
                 RoleArn: !GetAtt CFNRole.Arn
-                Capabilities: CAPABILITY_IAM
+                Capabilities: CAPABILITY_NAMED_IAM
                 StackName: !Sub
                 - test--${Repo}--${Branch}-${Service}--fargate--genbycicd
                 - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
