@@ -43,11 +43,11 @@ AWS_CLI_PROFILE=${awsCliProfile}
 
 IFS=',' read -ra ADDR <<< "$VARS"
 for i in "${ADDR[@]}"; do
-    echo "aws ssm put-parameter --profile ${AWS_CLI_PROFILE}  --name \"/\$STAGE/${githubRepoName}/\$BRANCH/\$LAMBDA_NAME/lambdaEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
+    echo "aws ssm put-parameter --profile \$AWS_CLI_PROFILE  --name \"/\$STAGE/${githubRepoName}/\$BRANCH/\$LAMBDA_NAME/lambdaEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
 done
 
 echo ""
-echo "aws ssm put-parameter --profile ${AWS_CLI_PROFILE} --name \"/\$STAGE/${githubRepoName}/\$BRANCH/\$LAMBDA_NAME/lambdaTimeout\" --type 'String' --value '<YOUR VALUE HERE>'"
-echo "aws ssm put-parameter --profile ${AWS_CLI_PROFILE} --name \"/\$STAGE/${githubRepoName}/\$BRANCH/\$LAMBDA_NAME/lambdaMemory\" --type 'String' --value '<YOUR VALUE HERE>'"
+echo "aws ssm put-parameter --profile \$AWS_CLI_PROFILE --name \"/\$STAGE/${githubRepoName}/\$BRANCH/\$LAMBDA_NAME/lambdaTimeout\" --type 'String' --value '<YOUR VALUE HERE>'"
+echo "aws ssm put-parameter --profile \$AWS_CLI_PROFILE --name \"/\$STAGE/${githubRepoName}/\$BRANCH/\$LAMBDA_NAME/lambdaMemory\" --type 'String' --value '<YOUR VALUE HERE>'"
 
 echo "--Bash script end--"
