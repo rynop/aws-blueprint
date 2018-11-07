@@ -11,13 +11,17 @@ while [[ -z "$stage" ]]; do
     read -p "Stage (Ex: test,staging, or prod): " stage
 done
 
+read -p "aws cli profile [default]: " awsCliProfile
+awsCliProfile=${awsCliProfile:-default}
+
+repoPath=$(basename `git rev-parse --show-toplevel 2>/dev/null` 2>/dev/null)
 while [[ -z "$githubRepoName" ]]; do
-    read -p "Github repo name (omit org): " githubRepoName
+    read -p "Github repo name (omit org) [${repoPath}]: " githubRepoName
+    githubRepoName=${githubRepoName:-$repoPath}
 done
 
-while [[ -z "$gitBranch" ]]; do
-    read -p "Git branch (Ex: master): " gitBranch
-done
+read -p "Git branch [master]: " gitBranch
+gitBranch=${gitBranch:-master}
 
 echo ""
 echo "--Bash script start--"
@@ -34,7 +38,7 @@ BRANCH=${gitBranch}
 
 IFS=',' read -ra ADDR <<< "$VARS"
 for i in "${ADDR[@]}"; do
-    echo "aws ssm put-parameter --name \"/\$STAGE/${githubRepoName}/\$BRANCH/ecsEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
+    echo "aws ssm put-parameter ${awsCliProfile} --name \"/\$STAGE/${githubRepoName}/\$BRANCH/ecsEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
 done
 
 echo "--Bash script end--"
