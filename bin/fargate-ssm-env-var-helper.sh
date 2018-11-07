@@ -23,6 +23,8 @@ done
 read -p "Git branch [master]: " gitBranch
 gitBranch=${gitBranch:-master}
 
+awsCliParams="--profile ${awsCliProfile}"
+
 echo ""
 echo "--Bash script start--"
 echo "\
@@ -38,7 +40,7 @@ BRANCH=${gitBranch}
 
 IFS=',' read -ra ADDR <<< "$VARS"
 for i in "${ADDR[@]}"; do
-    echo "aws ssm put-parameter ${awsCliProfile} --name \"/\$STAGE/${githubRepoName}/\$BRANCH/ecsEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
+    echo "aws ssm put-parameter ${awsCliParams} --name \"/\$STAGE/${githubRepoName}/\$BRANCH/ecsEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
 done
 
 echo "--Bash script end--"
