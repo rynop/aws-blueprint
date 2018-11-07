@@ -27,6 +27,8 @@ while [[ -z "$lambdaName" ]]; do
     read -p "Lambda Name (LambdaName param to your CloudFormation, no -- in name): " lambdaName
 done
 
+awsCliParams="--profile ${awsCliProfile}"
+
 echo "--Bash script start--"
 echo "\
 #!/usr/bin/env bash
@@ -42,7 +44,7 @@ LAMBDA_NAME=${lambdaName}
 
 IFS=',' read -ra ADDR <<< "$VARS"
 for i in "${ADDR[@]}"; do
-    echo "aws ssm put-parameter --name \"/\$STAGE/${githubRepoName}/\$BRANCH/\$LAMBDA_NAME/lambdaEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
+    echo "aws ssm put-parameter --profile ${awsCliParams} --name \"/\$STAGE/${githubRepoName}/\$BRANCH/\$LAMBDA_NAME/lambdaEnvs/${i}\" --type 'SecureString' --value '<YOUR VALUE HERE>'"
 done
 
 echo ""
