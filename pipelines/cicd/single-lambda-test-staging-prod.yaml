@@ -20,7 +20,7 @@ Parameters:
     NoEcho: true
 
   LambdaName:
-    Description: Lambda name (does not have to exist yet).  The full lambda name will be [Repo]--[Branch]--[LambdaName].  Should match FullLambdaName in your -r resources stack.
+    Description: Value of FullLambdaName in your -r resources stack output. Should not exist until after 1st CICD run.  ex [Repo]--[Branch]--[LambdaName]
     Type: String
   LambdaRuntime:
     Description: Lambda runtime
