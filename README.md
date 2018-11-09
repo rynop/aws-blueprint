@@ -1,6 +1,8 @@
 # aws-blueprint
 
-Easy to use CI/CD driven, convention based application harness that facilitates production grade, multi-stage approval based deployments.  Architected to work with a low cost (but scaleable) APIGateway+Lambda environment OR a high transaction ECS Fargate environment.  Includes an upgrade path from the APIG+Lambda to Fargate if/when the workload outgrows lambda.
+Easy to use CI/CD driven, convention based application harness that facilitates production grade, multi-stage approval based deployments.  Each developer on your team can easly create production replica toplogies from a git feature branch.
+
+Architected to work with a low cost (but scaleable) APIGateway+Lambda OR a high transaction ECS Fargate environment.  Includes an upgrade path from the APIG+Lambda to Fargate if/when the workload outgrows Lambda.
 
 ## Setup
 
