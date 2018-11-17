@@ -150,6 +150,11 @@ Resources:
               - Action:
                 - 's3:*'
                 - 'ecr:*'
+                - 'ecs:*'
+                Effect: Allow
+                Resource: '*'
+              - Action:
+                - 'iam:PassRole'
                 Effect: Allow
                 Resource: '*'
 
@@ -281,7 +286,7 @@ Resources:
                 RoleArn: !GetAtt CFNRole.Arn
                 Capabilities: CAPABILITY_NAMED_IAM
                 StackName: !Sub
-                - test--${Repo}--${Branch}-${Service}--fargate--genbycicd
+                - test--${Repo}--${Branch}-${Service}--genbycicd
                 - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
                 ChangeSetName: ChangeSet
                 TemplatePath: !Sub "MyApp::${RelCloudFormationTemplatePath}"
@@ -298,7 +303,7 @@ Resources:
                 ChangeSetName: ChangeSet
                 RoleArn: !GetAtt CFNRole.Arn
                 StackName: !Sub
-                - test--${Repo}--${Branch}-${Service}--fargate--genbycicd
+                - test--${Repo}--${Branch}-${Service}--genbycicd
                 - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
               RunOrder: 2  
         - Name: PromoteTest
@@ -329,7 +334,7 @@ Resources:
                 RoleArn: !GetAtt CFNRole.Arn
                 Capabilities: CAPABILITY_IAM
                 StackName: !Sub
-                - staging--${Repo}--${Branch}-${Service}--fargate--genbycicd
+                - staging--${Repo}--${Branch}-${Service}--genbycicd
                 - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
                 ChangeSetName: ChangeSet
                 TemplatePath: !Sub "MyApp::${RelCloudFormationTemplatePath}"
@@ -346,7 +351,7 @@ Resources:
                 ChangeSetName: ChangeSet
                 RoleArn: !GetAtt CFNRole.Arn
                 StackName: !Sub
-                - staging--${Repo}--${Branch}-${Service}--fargate--genbycicd
+                - staging--${Repo}--${Branch}-${Service}--genbycicd
                 - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
               RunOrder: 2
             - Name: ApproveStaging
@@ -374,7 +379,7 @@ Resources:
                 RoleArn: !GetAtt CFNRole.Arn
                 Capabilities: CAPABILITY_IAM
                 StackName: !Sub
-                - prod--${Repo}--${Branch}-${Service}--fargate--genbycicd
+                - prod--${Repo}--${Branch}-${Service}--genbycicd
                 - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
                 ChangeSetName: ChangeSet
                 TemplatePath: !Sub "MyApp::${RelCloudFormationTemplatePath}"
@@ -402,7 +407,7 @@ Resources:
                 ChangeSetName: ChangeSet
                 RoleArn: !GetAtt CFNRole.Arn
                 StackName: !Sub
-                - prod--${Repo}--${Branch}-${Service}--fargate--genbycicd
+                - prod--${Repo}--${Branch}-${Service}--genbycicd
                 - { Repo: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ], Branch: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ], Service: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ] }          
               RunOrder: 3
         - Name: DeleteStagingAndTest
