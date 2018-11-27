@@ -46,6 +46,7 @@ Resources:
         ViewerCertificate:
           AcmCertificateArn: !Ref AcmCertificateArn
           SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.1_2016
         Origins:
         - Id: APIGOrigin
           DomainName: !Sub ${ApiGatewayId}.execute-api.${AWS::Region}.amazonaws.com
