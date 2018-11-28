@@ -66,6 +66,7 @@ Resources:
             - Access-Control-Request-Method
             - Origin
             - Authorization
+            - Accept
             # - Host APIG needs to use SNI
             QueryString: true
           TargetOriginId: APIGOrigin
