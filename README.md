@@ -18,7 +18,7 @@ The Stage/Stages term refrenced throught this repo is `test`,`staging`,`prod`. A
 - [abp-single-lambda-api](https://github.com/rynop/abp-single-lambda-api): API backed by a single Lambda
 - [abp-singlle-lambda-no-web-api](https://github.com/rynop/abp-single-lambda-api#lambda-with-no-web-api): Single Lambda with no web API (ex: invoked by SNS).
 - [abp-fargate](https://github.com/rynop/abp-fargate): Fargate based app (with or without ELB)
-- [abp-angular](https://github.com/rynop/abp-angular): Running Angular web apps on S3 with CloudFront
+- [abp-angular](https://github.com/rynop/abp-angular): Running Angular web apps on AWS
 
 ## GNU tools
 
