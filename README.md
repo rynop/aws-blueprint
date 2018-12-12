@@ -11,6 +11,7 @@ The Stage/Stages term refrenced throught this repo is `test`,`staging`,`prod`. A
 1.  Create a Github user (acct will just be used to read repos for CI/CD), give it read auth to your github repo. Create a personal access token for this user at https://github.com/settings/tokens. This token will be used by the CI/CD to pull code.
 1.  Create a **versioned** s3 bucket to store CloudFormation nested stack templates. See [nested-stacks](./nested-stacks) for instructions.
 1.  Optional: if you are running MacOS, install GNU tools (below) to use the quick setup scripts in the example projects.
+1.  Recommended: Setup a trusted, [https certificate for local development](https://rynop.com/2018/11/12/setup-secure-https-certificate-for-local-angular-development-on-macos-mojave/).
 1.  Pick from the [examples](https://github.com/rynop/aws-blueprint#examples) below, and view the setup instructions in the `README.md`. It will walk you through creating your "resources" CloudFormation stack (API Gateway, s3 buckets, dynamo tables etc), as well as how to create your CI/CD CloudFormation Stack.
 
 ## Examples
