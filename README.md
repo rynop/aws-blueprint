@@ -14,7 +14,7 @@ The Stage/Stages term refrenced throught this repo is `test`,`staging`,`prod`. A
 1.  Recommended: Setup a trusted, [https certificate for local development](https://rynop.com/2018/11/12/setup-secure-https-certificate-for-local-angular-development-on-macos-mojave/).
 1.  Pick from the [examples](https://github.com/rynop/aws-blueprint#examples) below, and view the setup instructions in the `README.md`. It will walk you through creating your "resources" CloudFormation stack (API Gateway, s3 buckets, dynamo tables etc), as well as how to create your CI/CD CloudFormation Stack.
 
-## Examples
+## App Harnesses
 
 - [abp-single-lambda-api](https://github.com/rynop/abp-single-lambda-api): API backed by a single Lambda
 - [abp-singlle-lambda-no-web-api](https://github.com/rynop/abp-single-lambda-api#lambda-with-no-web-api): Single Lambda with no web API (ex: invoked by SNS).
