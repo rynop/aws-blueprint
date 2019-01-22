@@ -23,6 +23,8 @@ The Stage/Stages term refrenced throught this repo is `test`,`staging`,`prod`. A
 
 ## GNU tools for MacOS
 
+Not required, but recomended. Some blueprints have a quickstart script, that will require GNU versions if running MacOS.
+
 ```
 brew install coreutils
 brew install gnu-sed --with-default-names
