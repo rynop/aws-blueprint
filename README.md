@@ -21,13 +21,13 @@ The Stage/Stages term refrenced throught this repo is `test`,`staging`,`prod`. A
 - [abp-fargate](https://github.com/rynop/abp-fargate): Fargate based app (with or without ELB)
 - [abp-angular](https://github.com/rynop/abp-angular): Running Angular web apps on AWS
 
-## GNU tools
+## GNU tools for MacOS
 
 ```
 brew install coreutils
 brew install gnu-sed --with-default-names
 
-#add to your path: fish example (~/.config/fish/config.fish)
+#add to your path - fish example (~/.config/fish/config.fish):
 set -x GNU_BIN_PATH /usr/local/opt/coreutils/libexec/gnubin
 set -x GNU_SED_PATH /usr/local/Cellar/gnu-sed/4.5/bin
 
