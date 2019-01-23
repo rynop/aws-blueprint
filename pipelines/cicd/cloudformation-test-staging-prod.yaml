@@ -157,6 +157,10 @@ Resources:
                 - 'iam:PassRole'
                 Effect: Allow
                 Resource: '*'
+              - Action:
+                - 'ssm:Get*'
+                Effect: Allow
+                Resource: '*'
 
   CodeBuildProjectTestcases:
     Type: AWS::CodeBuild::Project
