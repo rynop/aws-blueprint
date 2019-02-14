@@ -40,7 +40,7 @@ brew install gnu-sed
 #### fish example (~/.config/fish/config.fish):
 set -x GNU_BIN_PATH /usr/local/opt/coreutils/libexec/gnubin
 set -x GNU_SED_PATH /usr/local/opt/gnu-sed/libexec/gnubin
-set -x PATH $GOPATH $PIP_BIN_PATH $GNU_BIN_PATH $GNU_SED_PATH $PATH
+set -x PATH $GNU_BIN_PATH $GNU_SED_PATH $PATH
 
 #### Bash example
 GNU_BIN_PATH=/usr/local/opt/coreutils/libexec/gnubin
