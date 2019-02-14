@@ -45,7 +45,7 @@ set -x PATH $GOPATH $PIP_BIN_PATH $GNU_BIN_PATH $GNU_SED_PATH $PATH
 #### Bash example
 GNU_BIN_PATH=/usr/local/opt/coreutils/libexec/gnubin
 GNU_SED_PATH=/usr/local/Cellar/gnu-sed/4.5/bin
-PATH=$GOPATH:$PIP_BIN_PATH:$GNU_BIN_PATH:$GNU_SED_PATH:$PATH
+PATH=$GNU_BIN_PATH:$GNU_SED_PATH:$PATH
 ```
 
 ## Tips
