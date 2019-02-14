@@ -1,6 +1,6 @@
 An s3 bucket has to be made in your aws account to hold [CloudFormation nested stacks](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-nested-stacks.html). Nested stacks are reuseable, CloudFormation snippets. Nested stacks MUST be stored in s3.
 
-1.  Create a new **versioned** S3 bucket to hold these nested stacks. We recommend naming it: `[region]--aws-blueprint.yourdomain.com/nested-stacks`. Ex: `us-east-1--aws-blueprint.yourdomain.com/nested-stacks`. You can enable versioning in the S3 web console by checking this box:
+1.  Create a new **versioned** S3 bucket to hold these nested stacks. We recommend naming it: `[region]--aws-blueprint.yourdomain.com`. Ex: `us-east-1--aws-blueprint.yourdomain.com`. You can enable versioning in the S3 web console by checking this box:
 
     <img src="../img/vers3.png" height="80">
 1.  Clone this repo
