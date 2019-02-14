@@ -42,7 +42,7 @@ set -x GNU_BIN_PATH /usr/local/opt/coreutils/libexec/gnubin
 set -x GNU_SED_PATH /usr/local/opt/gnu-sed/libexec/gnubin
 set -x PATH $GNU_BIN_PATH $GNU_SED_PATH $PATH
 
-#### Bash example
+#### Bash example (~/.bash_profile)
 GNU_BIN_PATH=/usr/local/opt/coreutils/libexec/gnubin
 GNU_SED_PATH=/usr/local/opt/gnu-sed/libexec/gnubin
 export PATH="$GNU_BIN_PATH:$GNU_SED_PATH:$PATH"
