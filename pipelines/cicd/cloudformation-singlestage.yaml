@@ -42,7 +42,7 @@ Parameters:
     Type: Number
     Default: 5
   CodeBuildImageTest:
-    Description: Image for the CodeBuild container that runs linting and test cases.
+    Description: Image for the CodeBuild container that runs linting and test cases. Omitting aws/codebuild prefix will pull image from dockerhub
     Type: String
     Default: golang:1.9.3
   CodeBuildImage:
