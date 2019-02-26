@@ -182,6 +182,14 @@ Resources:
             Value: !Ref AWS::AccountId
           - Name: IMAGE_REPO_NAME
             Value: !Join [ '/', [ !Select [ 0, !Split [ '--', !Ref 'AWS::StackName' ] ] , !Select [ 1, !Split [ '--', !Ref 'AWS::StackName' ] ] ] ]
+          - Name: GITHUB_ORG
+            Value: !Ref GithubOrg                     
+          - Name: REPO
+            Value: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: BRANCH
+            Value: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: SERVICE
+            Value: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ]            
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: CODEPIPELINE
@@ -210,6 +218,14 @@ Resources:
             Value: !Ref AWS::AccountId
           - Name: IMAGE_REPO_NAME
             Value: !Join [ '/', [ !Select [ 0, !Split [ '--', !Ref 'AWS::StackName' ] ] , !Select [ 1, !Split [ '--', !Ref 'AWS::StackName' ] ] ] ]
+          - Name: GITHUB_ORG
+            Value: !Ref GithubOrg                     
+          - Name: REPO
+            Value: !Select [ "0", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: BRANCH
+            Value: !Select [ "1", !Split [ '--', !Ref 'AWS::StackName' ] ]
+          - Name: SERVICE
+            Value: !Select [ "2", !Split [ '--', !Ref 'AWS::StackName' ] ]                  
       ServiceRole: !Ref CodeBuildRole
       Source:
         Type: CODEPIPELINE
