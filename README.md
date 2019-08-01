@@ -51,4 +51,4 @@ export PATH="$GNU_BIN_PATH:$GNU_SED_PATH:$PATH"
 
 ## Tips
 
-1.  [HOWTO](https://rynop.com/2019/05/09/howto-mobile-development-against-a-localhost-https-api/) develop against a localhost HTTPS API.
+- [HOWTO](https://rynop.com/2019/05/09/howto-mobile-development-against-a-localhost-https-api/) develop against a localhost HTTPS API.
