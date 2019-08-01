@@ -51,4 +51,4 @@ export PATH="$GNU_BIN_PATH:$GNU_SED_PATH:$PATH"
 
 ## Tips
 
-1.  Setup a trusted, [https certificate for local development](https://rynop.com/2018/11/12/setup-secure-https-certificate-for-local-angular-development-on-macos-mojave/).
+1.  [HOWTO](https://rynop.com/2019/05/09/howto-mobile-development-against-a-localhost-https-api/) develop against a localhost HTTPS API.
