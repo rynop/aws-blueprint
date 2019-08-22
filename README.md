@@ -21,7 +21,8 @@ The Stage/Stages term referred to thoughout the Blueprints are: `test`,`staging`
 
 View the setup instructions in the `README.md` of the blueprint you wish to use.
 
-- [abp-sam-nestjs](https://github.com/rynop/abp-sam-nestjs): API Gateway -> Lambda using [Serverless Application Module (SAM)](https://github.com/awslabs/serverless-application-model) and [NestJS](https://nestjs.com/). Complete with local API Gateway, Lambda and DyanmoDB simulation.
+- [abp-sam-twirp](https://github.com/rynop/abp-sam-twirp): CloudFront -> API Gateway -> Lambda running [Twirp](https://github.com/twitchtv/twirp) (RPC, protobuf&JSON) using [Serverless Application Module (SAM)]. Complete with local API Gateway, Lambda and DyanmoDB simulation.
+- [abp-sam-nestjs](https://github.com/rynop/abp-sam-nestjs): API Gateway -> Lambda running [NestJS](https://nestjs.com/) using  [Serverless Application Module (SAM)](https://github.com/awslabs/serverless-application-model). Complete with local API Gateway, Lambda and DyanmoDB simulation.
 - [abp-single-lambda-api](https://github.com/rynop/abp-single-lambda-api): API backed by a single Lambda
 - [abp-singlle-lambda-no-web-api](https://github.com/rynop/abp-single-lambda-api#lambda-with-no-web-api): Single Lambda with no web API (ex: invoked by SNS).
 - [abp-fargate](https://github.com/rynop/abp-fargate): Fargate based app (with or without ELB)
