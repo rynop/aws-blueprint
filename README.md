@@ -33,9 +33,7 @@ View the setup instructions in the `README.md` of the blueprint you wish to use.
 Not required, but recomended. Some blueprints have a quickstart script, that will require GNU versions if running MacOS.
 
 ```
-brew install wget
-brew install coreutils
-brew install gnu-sed
+brew install wget coreutils gnu-sed
 
 #add the following to your PATH
 
